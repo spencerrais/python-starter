@@ -6,23 +6,20 @@ ENV ?= dev
 FILE ?= src/main.py
 
 init:  ## Initialize project with uv and project config
+	@$(call start_msg,Initializing project)
 	@if [ ! -f pyproject.toml ]; then \
-		if [ -z "$(PROJECT_NAME)" ]; then \
-			read -p "Enter project name: " PROJECT_NAME; \
-		fi; \
-		$(call start_msg,Initializing project "$$PROJECT_NAME") \
-		echo "Creating pyproject.toml with uv (project name: $$PROJECT_NAME)..."; \
-		uv init --name "$$PROJECT_NAME" --yes; \
+		uv init --package ; \
+		uv add ruff pytest; \
 	else \
-		$(call start_msg,Project already initialized) \
+		echo "pyproject.toml already exists — skipping uv init"; \
 	fi
 
 	@if ! grep -q "\[tool.ruff\]" pyproject.toml; then \
-		echo "\n[tool.ruff]" >> pyproject.toml; \
+		printf "\n[tool.ruff]" >> pyproject.toml; \
 		echo "# Additional ruff configuration can be added here if desired." >> pyproject.toml; \
 	fi
 
-	$(call success_msg,Initialization complete for "$$PROJECT_NAME")
+	@$(call success_msg,Initialization complete)
 
 install:  ## Install Python dependencies
 	$(call start_msg,Installing dependencies)
@@ -31,13 +28,13 @@ install:  ## Install Python dependencies
 
 lint:  ## Lint code using ruff
 	$(call start_msg,Linting code)
-	uv ruff check .
+	ruff check
 	$(call success_msg,Lint passed)
 
 format:  ## Format code and organize imports using ruff
 	$(call start_msg,Formatting code and imports)
-	uv ruff format .
-	uv ruff check . --select I --fix
+	ruff format .
+	ruff check . --select I --fix
 	$(call success_msg,Formatting complete)
 
 test:  ## Run tests
@@ -65,7 +62,7 @@ clean-cache:  ## Clean only uv cache
 
 help:  ## Show this help message
 	@echo -e "$(YELLOW)Available targets:$(NC)\n"
-	@awk '/^[a-zA-Z0-9\-\_]+:/ && !/^\t/ { \
+	@awk '/^[a-zA-Z0-9_-]+:/ && !/^\t/ { \
 		gsub(":", "", $$1); \
 		printf "  \033[0;32m%-20s\033[0m %s\n", $$1, substr($$0, index($$0,$$2)) \
 	}' $(MAKEFILE_LIST)
