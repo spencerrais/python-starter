@@ -8,22 +8,22 @@ YELLOW := \033[0;33m
 BLUE := \033[0;34m
 NC := \033[0m
 
-trap 'echo -e "$(RED)[ERROR]$(NC) Failed at line $$LINENO at $$(date +%H:%M:%S)"; exit 1' ERR
-set -e
 
 define start_msg
-	@echo -e "$(BLUE)[START]$(NC) $(1) at `date +%H:%M:%S`"
+	@trap 'echo -e "$(RED)[ERROR]$(NC) Failed at line $$LINENO at $$(date +%H:%M:%S)"; exit 1' ERR; \
+	set -e; \
+	echo -e "$(BLUE)[START]$(NC) $(1) at `date +%H:%M:%S`"
 endef
 
 define success_msg
-	@echo -e "$(GREEN)[SUCCESS]$(NC) $(1) at `date +%H:%M:%S`"
+	echo -e "$(GREEN)[SUCCESS]$(NC) $(1) at `date +%H:%M:%S`"
 endef
 
 define info_msg
-	@echo -e "$(BLUE)[INFO]$(NC) $(1)"
+	echo -e "$(BLUE)[INFO]$(NC) $(1)"
 endef
 
 define warn_msg
-	@echo -e "$(YELLOW)[WARNING]$(NC) $(1)"
+	echo -e "$(YELLOW)[WARNING]$(NC) $(1)"
 endef
 
